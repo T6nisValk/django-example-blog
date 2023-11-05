@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 {% block title %}
-  Create post
+  Edit post
 {% endblock title %}
 {% block content %}
   <form method="POST">
     {% csrf_token %}
     <div class="mb-3">
       <label for="title" class="form-label">Title</label>
-      <input type="text" class="form-control" id="title" name="title"/>
+      <input type="text" class="form-control" id="title" name="title" value="{{ title }}"/>
     </div>
     <div class="mb-3">
       <label for="body" class="form-label">Blog Post Content</label>
-      <textarea rows="5" class="form-control" id="body" name="body"></textarea>
+      <textarea rows="5" class="form-control" id="body" name="body">{{ body }}</textarea>
     </div>
-    <button type="submit" class="btn btn-primary">Post this</button>
+    <button class="btn btn-primary">Post changes</button>
   </form>
-{% endblock content %}
+{% endblock content%}

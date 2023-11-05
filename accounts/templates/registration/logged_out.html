@@ -1,6 +1,11 @@
-{% extends "base.html" %} {% block title %}Logout{% endblock title %} {% block content %}
+{% extends "base.html" %}
+{% block title %}Logout{% endblock title %}
+{% block content %}
 
-<p class="mt-2">You logged out!</p>
-<a href="{% url 'login' %}">Login again?</a> <a href="/">Home</a>
+  <p class="mt-2">You logged out!</p>
+  <a href="{% url 'login' %}">Login again?</a>
+  <p>
+    <a href="/">Home</a>
+  </p>
 
 {% endblock content %}
