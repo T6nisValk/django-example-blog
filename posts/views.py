@@ -3,12 +3,15 @@ from .models import Post
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group, User
 from django.contrib import messages
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 
 
-def all_posts(request):
-    posts = Post.objects.all()
-
-    return render(request, "all_posts.html", context={"posts": posts})
+class PostsListView(ListView):
+    template_name = "all_posts.html"
+    model = Post  # object
+    context_object_name = "posts"  # context
+    paginate_by = 4  # how many per page
 
 
 @permission_required("posts.edit_post", raise_exception=True)
@@ -23,6 +26,13 @@ def edit_post(request, pk):
         item_to_update.save()
         return redirect("home")
     return render(request, "edit_post.html", context={"post": post})
+
+
+class PostDetailView(DetailView):
+    template_name = "post_detail.html"
+    model = Post
+    context_object_name = "post"
+    pass
 
 
 @login_required

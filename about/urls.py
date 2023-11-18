@@ -1,6 +1,6 @@
 from django.urls import path, include
-from .views import about
+from .views import AboutView
 
 urlpatterns = [
-    path("about/", about, name="about"),
+    path("about/", AboutView.as_view(), name="about"),
 ]
