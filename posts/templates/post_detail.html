@@ -7,10 +7,15 @@
     <div class="col-8">
       <h1>{{post.title}}</h1>
       <p>
-        <span class="text-secondary">{{post.created_at}}
+        <span class="text-secondary">Created:
+          {{post.created_at}}
           by
         </span>
         <span class="text-info">{{post.author}}</span>
+        <span class="text-secondary">Updated:
+          {{ post.updated_at }}
+          by
+          <span class="text-info">{{post.author}}</span></span>
       </p>
       <div class="fs-4 text">
         <hr/>

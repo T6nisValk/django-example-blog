@@ -1,10 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Post
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import Group, User
 from django.contrib import messages
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, UpdateView
+from django.urls import reverse
+from .forms import PostForm
 
 
 class PostsListView(ListView):
@@ -14,62 +18,48 @@ class PostsListView(ListView):
     paginate_by = 4  # how many per page
 
 
-@permission_required("posts.edit_post", raise_exception=True)
-@login_required
-def edit_post(request, pk):
-    post = Post.objects.get(pk=pk)
-    if request.method == "POST":
-        item_to_update = Post.objects.get(pk=pk)
-        item_to_update.title = request.POST.get("title")
-        item_to_update.body = request.POST.get("body")
-
-        item_to_update.save()
-        return redirect("home")
-    return render(request, "edit_post.html", context={"post": post})
-
-
-class PostDetailView(DetailView):
+class PostDetailView(LoginRequiredMixin, DetailView):
     template_name = "post_detail.html"
     model = Post
-    context_object_name = "post"
-    pass
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_mod"] = self.request.user.groups.filter(name="moderators").exists()
+        context["is_blocked"] = self.request.user.groups.filter(name="banned").exists()
+        return context
 
-@login_required
-def post_detail(request, pk):
-    post = Post.objects.get(pk=pk)
-    is_mod = request.user.groups.filter(name="moderators").exists()
-    is_blocked = request.user.groups.filter(name="banned").exists()
-    if request.method == "POST":
-        delete_id = request.POST.get("delete")
-        ban_author = request.POST.get("ban_author")
-        edit = request.POST.get("edit_post")
-        if delete_id:
-            post_to_delete = Post.objects.get(pk=delete_id)
+    def post(self, request, *args, **kwargs):
+        if "delete" in request.POST:
+            post_to_delete = get_object_or_404(Post, pk=request.POST.get("delete"))
             post_to_delete.delete()
             return redirect("home")
-        if ban_author:
-            author = User.objects.filter(username=ban_author).first()
+        elif "ban_author" in request.POST:
+            author_username = request.POST.get("ban_author")
+            author = get_object_or_404(User, username=author_username)
             mod_group = Group.objects.get(name="moderators")
             banned = Group.objects.get(name="banned")
             mod_group.user_set.remove(author)
             banned.user_set.add(author)
             return redirect("home")
-        if edit:
-            return redirect(f"{pk}/edit")
+        elif "edit_post" in request.POST:
+            return redirect(reverse("edit_post", kwargs={"pk": self.kwargs["pk"]}))
         return redirect("home")
-    return render(request, "post_detail.html", context={"post": post, "is_mod": is_mod, "is_blocked": is_blocked})
 
 
-@permission_required("posts.add_post", raise_exception=True)
-@login_required
-def create_post(request):
-    if request.method == "POST":
-        title = request.POST.get("title")
-        body = request.POST.get("body")
-        author = request.user
+class PostCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    # Success_url = "/" or - models def get_absolute_url() - redirects
+    permission_required = "posts.add_post"
+    model = Post
+    template_name = "post_form.html"
+    form_class = PostForm
 
-        post = Post.objects.create(title=title, body=body, author=author)
-        post.save()
-        return redirect("home")
-    return render(request, "create_post.html")
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+
+class PostEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    permission_required = "edit_post.html"
+    model = Post
+    template_name = "post_form.html"
+    form_class = PostForm
