@@ -27,7 +27,8 @@
             <button class="btn btn-success w-100 mt-2" name="edit_post" value="{{post.pk}}">Edit post</button>
           {% endif %}
 
-          <button class="btn btn-danger mt-2 w-100" name="delete" value="{{post.pk}}">Delete post</button>
+          <button class="btn btn-danger mt-2 w-100" name="delete" value="{{post.pk}}" onclick="return confirm('Are you sure you want to delete?')">Delete post</button>
+
         {% endif %}
 
         {% if user.is_staff %}

@@ -39,12 +39,14 @@ def post_detail(request, pk):
         if delete_id:
             post_to_delete = Post.objects.get(pk=delete_id)
             post_to_delete.delete()
+            return redirect("home")
         if ban_author:
             author = User.objects.filter(username=ban_author).first()
             mod_group = Group.objects.get(name="moderators")
             banned = Group.objects.get(name="banned")
             mod_group.user_set.remove(author)
             banned.user_set.add(author)
+            return redirect("home")
         if edit_post:
             return redirect(f"{pk}/edit")
         return redirect("home")
