@@ -15,8 +15,6 @@ def all_posts(request):
 @login_required
 def edit_post(request, pk):
     post = Post.objects.get(pk=pk)
-    title = post.title
-    body = post.body
     if request.method == "POST":
         item_to_update = Post.objects.get(pk=pk)
         item_to_update.title = request.POST.get("title")
@@ -24,7 +22,7 @@ def edit_post(request, pk):
 
         item_to_update.save()
         return redirect("home")
-    return render(request, "edit_post.html", context={"title": title, "body": body})
+    return render(request, "edit_post.html", context={"post": post})
 
 
 @login_required
@@ -47,7 +45,7 @@ def post_detail(request, pk):
             mod_group.user_set.remove(author)
             banned.user_set.add(author)
             return redirect("home")
-        if edit_post:
+        if edit:
             return redirect(f"{pk}/edit")
         return redirect("home")
     return render(request, "post_detail.html", context={"post": post, "is_mod": is_mod, "is_blocked": is_blocked})
