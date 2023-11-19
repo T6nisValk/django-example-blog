@@ -23,3 +23,7 @@ urlpatterns = [
     path("", include("posts.urls")),
     path("", include("about.urls")),
 ]
+
+admin.site.site_title = "!!!site_title!!!"
+admin.site.site_header = "!!!site_header!!!"
+admin.site.index_title = "!!!index_title!!!"

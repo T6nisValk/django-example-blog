@@ -26,6 +26,10 @@
                 <a class="nav-link active" aria-current="page" href="/">Posts</a>
               </li>
 
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/">My Posts</a>
+              </li>
+
               {% if perms.posts.add_post %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'create_post' %}">Create post</a>
